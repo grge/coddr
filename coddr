@@ -1,0 +1,21 @@
+#!/usr/bin/env -S Rscript --vanilla
+# Relaunch as interactive if not already
+if (!interactive()) {
+  args <- commandArgs(trailingOnly = FALSE)
+  script <- normalizePath(sub("--file=", "", args[grep("--file=", args)]))
+  cmd <- paste(shQuote(c(R.home("bin/R"), "--no-save", "--no-restore", "--quiet", "-e",
+    sprintf("source('%s')", script))))
+  quit(status = system(cmd))
+}
+
+library(ellmer)
+
+wd <- dirname(normalizePath(commandArgs(trailingOnly = FALSE) |>
+  grep("--file=", x = _, value = TRUE) |>
+  sub("--file=", "", x = _)))
+setwd(wd)
+
+source("R/tools_fs.R")
+source("R/agent.R")
+
+run_agent()
