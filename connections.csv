@@ -1,0 +1,2 @@
+name,server,database,auth_type,username,password_env,port
+EDW,SERVER_1,EDW_BI,WINDOWS,prod/svc_account,SVC_PWD,8765

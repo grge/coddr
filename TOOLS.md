@@ -11,6 +11,9 @@
 - `add_to_context(file_path)`: Add a file to the permanent session context. The full content of the file (with line numbers) will be injected into the system prompt for every subsequent turn.
 - `remove_from_context(file_path)`: Remove a file from the active session context to free up token space.
 
+### Database
+- `query_database(connection_name, sql)`: Run a read-only SELECT query against a named database connection. Returns a markdown preview table (up to 10 rows/columns) and the path to the full CSV result saved on disk. Connection names are defined in `connections.csv`.
+
 ### Metadata (not yet implemented - coming soon)
 - `query_metadata_db(sql)`: query the local SQLite metadata database
 - `find_articles(query)`: semantic search over documentation articles

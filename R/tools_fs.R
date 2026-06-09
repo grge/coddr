@@ -1,3 +1,15 @@
+register_fs_tools <- function(chat, session_id) {
+  chat$register_tool(list_dir)
+  chat$register_tool(read_file)
+  chat$register_tool(write_file)
+  chat$register_tool(replace_in_file)
+  chat$register_tool(shell_execute)
+  chat$register_tool(add_to_context)
+  chat$register_tool(remove_from_context)
+  chat$register_tool(list_context)
+  invisible(NULL)
+}
+
 list_dir <- ellmer::tool(
   function(path = ".") {
     if (!dir.exists(path)) return(paste0("Directory not found: ", path))
