@@ -12,5 +12,6 @@ Imports:
     ellmer (>= 0.2.0),
     DBI,
     RSQLite,
+    jsonlite,
     cli,
     rlang

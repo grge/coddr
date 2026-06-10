@@ -79,10 +79,14 @@ replace_in_file <- ellmer::tool(
     if (!file.exists(path)) return(paste0("File not found: ", path))
     tryCatch({
       full_text <- paste(readLines(path, warn = FALSE), collapse = "\n")
-      if (!grepl(search_block, full_text, fixed = TRUE)) {
+      n_matches <- lengths(regmatches(full_text, gregexpr(search_block, full_text, fixed = TRUE)))
+      if (n_matches == 0) {
         return("Error: The search block was not found exactly in the file. Please read the file again and provide the exact snippet to replace.")
       }
-      writeLines(gsub(search_block, replace_block, full_text, fixed = TRUE), path)
+      if (n_matches > 1) {
+        return(paste0("Error: The search block appears ", n_matches, " times in the file. Provide more surrounding context to make it unique."))
+      }
+      writeLines(sub(search_block, replace_block, full_text, fixed = TRUE), path)
       paste0("Successfully replaced snippet in ", path)
     }, error = function(e) paste0("Error during replace: ", conditionMessage(e)))
   },

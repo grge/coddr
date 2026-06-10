@@ -3,7 +3,7 @@ SESSIONS_DIR <- file.path(CODDR_ROOT, "sessions")
 
 init_session <- function(session_id) {
   session_path <- file.path(SESSIONS_DIR, session_id)
-  dir.create(file.path(session_path, "history"), recursive = TRUE, showWarnings = FALSE)
+  dir.create(session_path, recursive = TRUE, showWarnings = FALSE)
   manifest_path <- file.path(session_path, "active_files.txt")
   if (!file.exists(manifest_path)) writeLines(character(0), manifest_path)
   session_path
@@ -36,17 +36,30 @@ list_context_internal <- function(session_id) {
   read_manifest(session_id)
 }
 
-append_history <- function(session_id, role, message) {
-  history_path <- file.path(SESSIONS_DIR, session_id, "history", "transcript.md")
-  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-  entry <- paste0("\n[", timestamp, "] ", toupper(role), ":\n", message, "\n")
-  current <- if (file.exists(history_path)) paste(readLines(history_path, warn = FALSE), collapse = "\n") else ""
-  writeLines(paste0(current, entry), history_path)
+turns_path <- function(session_id) {
+  file.path(SESSIONS_DIR, session_id, "turns.json")
+}
+
+save_turns <- function(session_id, turns) {
+  if (length(turns) == 0) return(invisible(NULL))
+  recorded <- lapply(turns, ellmer::contents_record)
+  writeLines(jsonlite::serializeJSON(recorded), turns_path(session_id))
+  invisible(NULL)
+}
+
+load_turns <- function(session_id) {
+  path <- turns_path(session_id)
+  if (!file.exists(path)) return(list())
+  tryCatch({
+    recorded <- jsonlite::unserializeJSON(paste(readLines(path, warn = FALSE), collapse = "\n"))
+    lapply(recorded, ellmer::contents_replay)
+  }, error = function(e) {
+    message("[warn] Could not load turns: ", conditionMessage(e))
+    list()
+  })
 }
 
 sweep_context <- function(session_id) {
-  session_path <- file.path(SESSIONS_DIR, session_id)
-
   identity_path <- file.path(CODDR_ROOT, "IDENTITY.md")
   tools_path <- file.path(CODDR_ROOT, "TOOLS.md")
 
@@ -64,16 +77,10 @@ sweep_context <- function(session_id) {
     paste0("## Active Files\n\n", paste(sections, collapse = "\n\n"))
   }
 
-  history_path <- file.path(session_path, "history", "transcript.md")
-  history_content <- if (file.exists(history_path)) {
-    paste0("## Conversation History\n", paste(readLines(history_path, warn = FALSE), collapse = "\n"))
-  } else ""
-
   paste(
     identity,
     tools_doc,
     active_content,
-    history_content,
     sep = "\n\n---\n\n"
   )
 }

@@ -80,6 +80,7 @@ run_agent <- function(model = "google/gemma-4-31b-it:free", session_id = "defaul
   message("Type 'exit' to quit.")
 
   repeat {
+    chat$set_turns(load_turns(session_id))
     chat$set_system_prompt(sweep_context(session_id))
 
     tokens_used <- chat_tokens_used(chat)
@@ -88,7 +89,6 @@ run_agent <- function(model = "google/gemma-4-31b-it:free", session_id = "defaul
 
     if (tolower(trimws(user_input)) == "exit") break
 
-    append_history(session_id, "user", user_input)
     response <- tryCatch(
       chat$chat(user_input, echo = "none"),
       error = function(e) {
@@ -98,7 +98,7 @@ run_agent <- function(model = "google/gemma-4-31b-it:free", session_id = "defaul
     )
 
     if (!is.null(response)) {
-      append_history(session_id, "assistant", response)
+      save_turns(session_id, chat$get_turns())
       cat("\n", response, "\n\n")
     }
   }
