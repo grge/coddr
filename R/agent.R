@@ -59,7 +59,7 @@ build_prompt <- function(tokens_used, context_length, key_info) {
 #' @param session_id Unique identifier for the session
 #' @param ... Additional arguments passed to ellmer::chat_openrouter()
 #' @export
-run_agent <- function(model = "google/gemma-4-31b-it:free", session_id = "default", ...) {
+run_agent <- function(model = "anthropic/claude-haiku-4-5", session_id = "default", ...) {
   source("R/context.R")
   source("R/tools_fs.R")
   source("R/tools_db.R")
